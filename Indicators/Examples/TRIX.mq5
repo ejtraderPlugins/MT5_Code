@@ -60,7 +60,7 @@ int OnCalculate(const int rates_total,
      {
       limit=3*(InpPeriodEMA-1);
       for(int i=0;i<limit;i++)
-         TRIX_Buffer[0]=EMPTY_VALUE;
+         TRIX_Buffer[i]=EMPTY_VALUE;
      }
    else limit=prev_calculated-1;
 //--- calculate EMA

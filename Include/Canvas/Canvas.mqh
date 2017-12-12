@@ -623,7 +623,7 @@ void CCanvas::LineVertical(int x,int y1,int y2,const uint clr)
 //--- stay withing image boundaries
    if(y1<0)
       y1=0;
-   if(y2>=m_height-1)
+   if(y2>=m_height)
       y2=m_height-1;
 //--- draw line
    int index=y1*m_width+x;
@@ -2518,13 +2518,10 @@ static uint CCanvas::GetDefaultColor(const int i)
 //+------------------------------------------------------------------+
 void CCanvas::TransparentLevelSet(const uchar value)
   {
-   uint clr;
    int total=ArraySize(m_pixels);
+   uint value24=(uint)value<<24;
    for(int i=0;i<total;i++)
-     {
-      clr=m_pixels[i]&0xFFFFFF;
-      m_pixels[i]=((uint)value<<24)|(m_pixels[i]&0xFFFFFF);
-     }
+      m_pixels[i]=value24|(m_pixels[i]&0xFFFFFF);
   }
 //+------------------------------------------------------------------+
 //| Set font                                                         |

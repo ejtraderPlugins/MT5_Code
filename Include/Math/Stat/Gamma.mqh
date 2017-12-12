@@ -6,7 +6,133 @@
 #property copyright "Copyright 2016-2017, MetaQuotes Software Corp."
 #property link      "https://www.mql5.com"
 
-#include "Math.mqh"
+#include <Math\Stat\Normal.mqh>
+
+const double DoubleEpsilon=1.11022302462515654042E-16;
+const double LogMax=7.09782712893383996732E2;
+//+------------------------------------------------------------------+
+//| Inverse of the incomplete Gamma integral                         |
+//+------------------------------------------------------------------+
+double MathInverseGammaIncomplete(const double a,const double y)
+  {
+//--- bound the solution
+   double x0 = DBL_MAX;
+   double yl = 0;
+   double x1 = 0;
+   double yh = 1.0;
+   double dithresh=5.0*DoubleEpsilon;
+//--- approximation to inverse function
+   double d=1.0/(9.0*a);
+   int err_code=0;
+   double q_normal=MathQuantileNormal(y,0,1,true,false,err_code);
+   double yy=(1.0-d-q_normal*MathSqrt(d));
+   double x=a*yy*yy*yy;
+   double lgm=MathGammaLog(a);
+   for(int i=0; i<10; i++)
+     {
+      if(x>x0 || x<x1)
+         break;
+      yy=1.0-MathGammaIncomplete(x,a);
+      if(yy<yl || yy>yh)
+         break;
+      if(yy<y)
+        {
+         x0 = x;
+         yl = yy;
+        }
+      else
+        {
+         x1 = x;
+         yh = yy;
+        }
+      //--- compute the derivative of the function at this point
+      d=(a-1.0)*MathLog(x)-x-lgm;
+      if(d<-LogMax)
+         break;
+      d=-MathExp(d);
+      //--- compute the step to the next approximation of x
+      d=(yy-y)/d;
+      if(MathAbs(d/x)<DoubleEpsilon)
+         return (x);
+      x=x-d;
+     }
+//--- resort to interval halving if Newton iteration did not converge. 
+   d=0.0625;
+   if(x0==DBL_MAX)
+     {
+      if(x<=0.0)
+         x=1.0;
+      while(x0==DBL_MAX && MathIsValidNumber(x))
+        {
+         x=(1.0+d)*x;
+         yy=1.0-MathGammaIncomplete(x,a);
+         if(yy<y)
+           {
+            x0 = x;
+            yl = yy;
+            break;
+           }
+         d=d+d;
+        }
+     }
+   d=0.5;
+   double dir=0;
+   for(int i=0; i<400; i++)
+     {
+      double t=x1+d *(x0-x1);
+      if(!MathIsValidNumber(t))
+         break;
+      x=t;
+      yy=1.0-MathGammaIncomplete(x,a);
+      lgm=(x0-x1)/(x1+x0);
+      if(MathAbs(lgm)<dithresh)
+         break;
+      lgm=(yy-y)/y;
+      if(MathAbs(lgm)<dithresh)
+         break;
+      if(x<=0.0)
+         break;
+      if(yy>=y)
+        {
+         x1 = x;
+         yh = yy;
+         if(dir<0)
+           {
+            dir=0;
+            d=0.5;
+           }
+         else
+         if(dir>1)
+            d=0.5*d+0.5;
+         else
+            d=(y-yl)/(yh-yl);
+         dir+=1;
+        }
+      else
+        {
+         x0 = x;
+         yl = yy;
+         if(dir>0)
+           {
+            dir=0;
+            d=0.5;
+           }
+         else
+         if(dir<-1)
+            d=0.5*d;
+         else
+            d=(y-yl)/(yh-yl);
+         dir-=1;
+        }
+     }
+   if(x==0.0 || !MathIsValidNumber(x))
+     {
+      Print("Errors in an arithmetic, casting, or conversion operation.");
+      return(QNaN);
+     }
+//---
+   return(x);
+  }
 //+------------------------------------------------------------------+
 //| Gamma probability density function (PDF)                         |
 //+------------------------------------------------------------------+
@@ -37,7 +163,6 @@ double MathProbabilityDensityGamma(const double x,const double a,const double b,
       error_code=ERR_ARGUMENTS_INVALID;
       return QNaN;
      }
-
    error_code=ERR_OK;
 //--- check negative x
    if(x<=0)
@@ -327,44 +452,12 @@ double MathQuantileGamma(const double probability,const double a,const double b,
       error_code=ERR_RESULT_INFINITE;
       return QPOSINF;
      }
-
-   double x=0.5;
-//--- prepare h
-   const double eps=10E-18;
-   double h=1.0;
-   double max_h=MathSqrt(eps);
-   const int max_iterations=100;
-   int iterations=0;
-//--- Newton iterations
-   while(iterations<max_iterations)
-     {
-      //--- check convergence 
-      if((MathAbs(h)>max_h*MathAbs(x) && MathAbs(h)>max_h)==false)
-         break;
-      //--- calculate pdf and cdf
-      double pdf=MathProbabilityDensityGamma(x,a,b,error_code);
-      double cdf=MathCumulativeDistributionGamma(x,a,b,error_code);
-      //--- calculate ratio
-      h=(cdf-prob)/pdf;
-      //---
-      double x_new=x-h;
-      if(x_new<0.0)
-         x_new=x*0.1;
-      else
-      if(x_new>1.0)
-         x_new=1.0-(1.0-x)*0.1;
-      x=x_new;
-
-      iterations++;
-     }
-
-   if(iterations<max_iterations)
-      return x;
-   else
-     {
+//--- calculate quantile
+   double quantile=MathInverseGammaIncomplete(a,1.0-prob)*b;
+   if(!MathIsValidNumber(quantile))
       error_code=ERR_NON_CONVERGENCE;
-      return QNaN;
-     }
+//---
+   return(quantile);
   }
 //+------------------------------------------------------------------+
 //| Gamma distribution quantile function (inverse CDF)               |
@@ -446,33 +539,9 @@ bool MathQuantileGamma(const double &probability[],const double a,const double b
          result[i]=QPOSINF;
       else
         {
-         double x=0.5;
-         double h=1.0;
-         //--- Newton iterations
-         int iterations=0;
-         while(iterations<max_iterations)
-           {
-            //--- check convergence 
-            if((MathAbs(h)>max_h*MathAbs(x) && MathAbs(h)>max_h)==false)
-               break;
-            //--- calculate pdf and cdf
-            double pdf=MathProbabilityDensityGamma(x,a,b,error_code);
-            double cdf=MathCumulativeDistributionGamma(x,a,b,error_code);
-            //--- calculate ratio
-            h=(cdf-prob)/pdf;
-            //---
-            double x_new=x-h;
-            if(x_new<0.0)
-               x_new=x*0.1;
-            else
-            if(x_new>1.0)
-               x_new=1.0-(1.0-x)*0.1;
-            x=x_new;
-
-            iterations++;
-           }
-         if(iterations<max_iterations)
-            result[i]=x;
+         double quantile=MathInverseGammaIncomplete(a,1.0-prob)*b;
+         if(MathIsValidNumber(quantile))
+            result[i]=quantile;
          else
             return false;
         }

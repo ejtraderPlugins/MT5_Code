@@ -108,6 +108,7 @@ bool COpenCL::GetGlobalMemorySize(long &global_memory_size)
   {
    if(m_context==INVALID_HANDLE)
       return(false);
+
 //--- get global memory size
    global_memory_size=CLGetInfoInteger(m_context,CL_DEVICE_GLOBAL_MEM_SIZE);
    if(global_memory_size==-1)

@@ -32,10 +32,10 @@ ForexFamily::Init(string family_name)
   {
    if(family_name=="USD")
      {
-      string  sn[]={"XAUUSD","XTIUSD","EURUSD","GBPUSD","AUDUSD","NZDUSD","USDJPY","USDCAD","USDCHF"};
+      string  sn[]={"XAUUSD","EURUSD","GBPUSD","AUDUSD","NZDUSD","USDJPY","USDCAD","USDCHF"};
       num=ArraySize(sn);
       ArrayResize(symbol_names,num);
-      double   coeff[]={-1,-1,-1,-1,-1,-1,1,1,1};
+      double   coeff[]={-1,-1,-1,-1,-1,1,1,1};
       ArrayCopy(symbol_names,sn);
       ArrayCopy(symbol_coefficient,coeff);
      }

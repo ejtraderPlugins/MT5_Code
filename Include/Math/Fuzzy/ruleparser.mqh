@@ -151,7 +151,7 @@ private:
    bool              m_input;         // Confirmation of the variable
 
 public:
-                     CVarLexem(INamedVariable *&var,bool in);
+                     CVarLexem(INamedVariable *var,bool in);
                     ~CVarLexem(void);
    //--- methods gets or sets the varriable                         
    INamedVariable   *Var(void)                  { return (m_var); }
@@ -167,7 +167,7 @@ public:
 //+------------------------------------------------------------------+
 //| Constructor with parameters                                      |
 //+------------------------------------------------------------------+   
-CVarLexem::CVarLexem(INamedVariable *&var,bool in)
+CVarLexem::CVarLexem(INamedVariable *var,bool in)
   {
    m_var=var;
    m_input=in;
@@ -240,14 +240,14 @@ public:
    //--- methods of parsing
    static IParsableRule *Parse(const string rule,IParsableRule *emptyRule,CList *in,CList *out);
 private:
-   static CList *BuildLexemsList(CList *in,CList *out);
-   static void BuildLexemsList(INamedVariable *var,bool in,CList *&lexems);
-   static CArrayObj *ParseLexems(const string rule,CList *&lexems);
-   static CArrayObj *ExtractSingleCondidtions(CArrayObj *&conditionExpression,CList *&in,CList *&lexems);
+   static CList     *BuildLexemsList(CList *in,CList *out);
+   static void       BuildLexemsList(INamedVariable *var,bool in,CList *lexems);
+   static CArrayObj *ParseLexems(const string rule,CList *lexems);
+   static CArrayObj *ExtractSingleCondidtions(CArrayObj *conditionExpression,CList *in,CList *lexems);
    static CConditions *ParseConditions(CArrayObj *conditionExpression,CList *in,CList *lexems);
-   static int FindPairBracket(CArrayObj *expressions,CList *&lexems);
-   static ICondition *ParseConditionsRecurse(CArrayObj *expressions,CList *&lexems);
-   static CSingleCondition *ParseConclusion(CArrayObj *&conditionExpression,CList *&out,CList *&lexems);
+   static int        FindPairBracket(CArrayObj *expressions,CList *lexems);
+   static ICondition *ParseConditionsRecurse(CArrayObj *expressions,CList *lexems);
+   static CSingleCondition *ParseConclusion(CArrayObj *conditionExpression,CList *out,CList *lexems);
   };
 //+------------------------------------------------------------------+
 //| Parse                                                            |
@@ -425,7 +425,7 @@ static CList *CRuleParser::BuildLexemsList(CList *in,CList *out)
 //+------------------------------------------------------------------+
 //| Build lexems list                                                |
 //+------------------------------------------------------------------+
-static void CRuleParser::BuildLexemsList(INamedVariable *var,bool in,CList *&lexems)
+static void CRuleParser::BuildLexemsList(INamedVariable *var,bool in,CList *lexems)
   {
    CVarLexem *varLexem=new CVarLexem(var,in);
    CDictionary_String_Obj *p_so_var=new CDictionary_String_Obj;
@@ -477,7 +477,7 @@ static void CRuleParser::BuildLexemsList(INamedVariable *var,bool in,CList *&lex
 //+------------------------------------------------------------------+
 //| Parse lexems                                                     |
 //+------------------------------------------------------------------+
-static CArrayObj *CRuleParser::ParseLexems(const string rule,CList *&lexems)
+static CArrayObj *CRuleParser::ParseLexems(const string rule,CList *lexems)
   {
    CArrayObj *expressions=new CArrayObj;
    string words[];
@@ -486,7 +486,7 @@ static CArrayObj *CRuleParser::ParseLexems(const string rule,CList *&lexems)
    for(int i=0; i<ArraySize(words); i++)
      {
       string word=words[i];
-      CObject *lexem = NULL;
+      CObject *lexem=NULL;
       if(TryGetValue(lexems,word,lexem))
         {
          expressions.Add(lexem);
@@ -499,12 +499,12 @@ static CArrayObj *CRuleParser::ParseLexems(const string rule,CList *&lexems)
         }
      }
 //--- return expressions
-   return (expressions);
+   return(expressions);
   }
 //+------------------------------------------------------------------+
 //| Extract single condidtions                                       |
 //+------------------------------------------------------------------+
-static CArrayObj *CRuleParser::ExtractSingleCondidtions(CArrayObj *&conditionExpression,CList *&in,CList *&lexems)
+static CArrayObj *CRuleParser::ExtractSingleCondidtions(CArrayObj *conditionExpression,CList *in,CList *lexems)
   {
    CArrayObj *copyExpressions=conditionExpression;
    CArrayObj *expressions=new CArrayObj;
@@ -723,7 +723,7 @@ static CConditions *CRuleParser::ParseConditions(CArrayObj *conditionExpression,
 //+------------------------------------------------------------------+
 //| Find pair bracket                                                |
 //+------------------------------------------------------------------+
-static int CRuleParser::FindPairBracket(CArrayObj *expressions,CList *&lexems)
+static int CRuleParser::FindPairBracket(CArrayObj *expressions,CList *lexems)
   {
 //--- Assume that '(' stands at first place
    int bracketsOpened=1;
@@ -764,7 +764,7 @@ static int CRuleParser::FindPairBracket(CArrayObj *expressions,CList *&lexems)
 //+------------------------------------------------------------------+
 //| Parse conditions recurse                                         |
 //+------------------------------------------------------------------+
-static ICondition *CRuleParser::ParseConditionsRecurse(CArrayObj *expressions,CList *&lexems)
+static ICondition *CRuleParser::ParseConditionsRecurse(CArrayObj *expressions,CList *lexems)
   {
    if(expressions.Total()<1)
      {
@@ -919,7 +919,7 @@ static ICondition *CRuleParser::ParseConditionsRecurse(CArrayObj *expressions,CL
 //+------------------------------------------------------------------+
 //| Parse conclusion                                                 |
 //+------------------------------------------------------------------+
-static CSingleCondition *CRuleParser::ParseConclusion(CArrayObj *&conditionExpression,CList *&out,CList *&lexems)
+static CSingleCondition *CRuleParser::ParseConclusion(CArrayObj *conditionExpression,CList *out,CList *lexems)
   {
    CArrayObj *copyExpression=conditionExpression;
 //--- Remove extra brackets

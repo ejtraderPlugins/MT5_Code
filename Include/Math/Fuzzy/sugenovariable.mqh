@@ -52,7 +52,7 @@ private:
    double            m_const_value;   // The constant term of the linear equation
 
 public:
-                     CLinearSugenoFunction(const string name,CList *&in);
+                     CLinearSugenoFunction(const string name,CList *in);
                      CLinearSugenoFunction(const string name,CList *in,CList *coeffs,const double constValue);
                      CLinearSugenoFunction(const string name,CList *in,const double  &coeffs[]);
                     ~CLinearSugenoFunction(void);
@@ -70,7 +70,7 @@ public:
 //+------------------------------------------------------------------+
 //| First constructor with parameters                                |
 //+------------------------------------------------------------------+
-CLinearSugenoFunction::CLinearSugenoFunction(const string name,CList *&in)
+CLinearSugenoFunction::CLinearSugenoFunction(const string name,CList *in)
   {
    m_coeffs=new CList;
    CNamedValueImpl::Name(name);
@@ -207,11 +207,11 @@ public:
                      CSugenoVariable(const string name);
                     ~CSugenoVariable(void);
    //--- method to check type 
-   virtual bool      IsTypeOf(EnType type)   { return(type==TYPE_CLASS_SugenoVariable); }
+   virtual bool      IsTypeOf(EnType type) { return(type==TYPE_CLASS_SugenoVariable); }
    //--- method gets the list of functions that belongs to the variable
-   CList             *Functions()   {  return (m_functions); }
+   CList             *Functions() {  return(m_functions); }
    //--- overload gets the list of functions that belongs to the variable
-   CList             *Values()      {  return (m_functions); }
+   CList             *Values() {  return(m_functions); }
    //--- find function by name  
    ISugenoFunction *GetFuncByName(const string name);
   };

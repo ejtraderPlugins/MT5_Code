@@ -416,16 +416,13 @@ double MathTanh(const double x)
 //+------------------------------------------------------------------+
 //| Structure stores a variable of type double                       |
 //+------------------------------------------------------------------+
-struct CDoubleValue
+union UDoubleValue
   {
-   double            d;
-  };
-//+------------------------------------------------------------------+
-//| Structure stores a variable of type long                         |
-//+------------------------------------------------------------------+
-struct CLongValue
-  {
-   long              l;
+   double            value;
+   long              bits;
+
+                     UDoubleValue(double dbl):value(dbl) { }
+                     UDoubleValue(long bit_value):bits(bit_value) { }
   };
 //+------------------------------------------------------------------+
 //| Work with infinity and NaN                                       |
@@ -465,25 +462,27 @@ CInfOrNaN::~CInfOrNaN(void)
 //+------------------------------------------------------------------+
 static bool CInfOrNaN::IsPositiveInfinity(const double x)
   {
+   UDoubleValue val=x;
 //--- check
-   return(StringFormat("%I64X",x)=="7FF0000000000000");
+   return(val.bits==0x7FF0000000000000);
   }
 //+------------------------------------------------------------------+
 //| Check for -inf                                                   |
 //+------------------------------------------------------------------+
 static bool CInfOrNaN::IsNegativeInfinity(const double x)
   {
+   UDoubleValue val=x;
 //--- check
-   return(StringFormat("%I64X",x)=="FFF0000000000000");
+   return(val.bits==0xFFF0000000000000);
   }
 //+------------------------------------------------------------------+
 //| Check for +-inf                                                  |
 //+------------------------------------------------------------------+
 static bool CInfOrNaN::IsInfinity(const double x)
   {
+   UDoubleValue val=x;
 //--- check
-   StringFormat("%I64X",x);
-   return(_ReturnedString=="7FF0000000000000" || _ReturnedString=="FFF0000000000000");
+   return(val.bits==0x7FF0000000000000 || val.bits==0xFFF0000000000000);
   }
 //+------------------------------------------------------------------+
 //| Check for NaN                                                    |
@@ -510,20 +509,23 @@ static bool CInfOrNaN::IsNaN(const double x)
 //+------------------------------------------------------------------+
 static double CInfOrNaN::PositiveInfinity(void)
   {
-   return((double)"inf");
+   UDoubleValue val(0x7FF0000000000000);
+   return(val.value);
   }
 //+------------------------------------------------------------------+
 //| Return -inf                                                      |
 //+------------------------------------------------------------------+
 static double CInfOrNaN::NegativeInfinity(void)
   {
-   return((double)"-inf");
+   UDoubleValue val(0xFFF0000000000000);
+   return(val.value);
   }
 //+------------------------------------------------------------------+
 //| Return NaN                                                       |
 //+------------------------------------------------------------------+
 static double CInfOrNaN::NaN(void)
   {
-   return((double)"nan");
+   UDoubleValue val(0x7FFFFFFFFFFFFFFF);
+   return(val.value);
   }
 //+------------------------------------------------------------------+

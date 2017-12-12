@@ -946,13 +946,6 @@ CCompositeMembershipFunction::CCompositeMembershipFunction(MfCompositionType com
 //+------------------------------------------------------------------+     
 CCompositeMembershipFunction::~CCompositeMembershipFunction()
   {
-   for(int i=0; i<m_mfs.Total(); i++)
-     {
-      if(CheckPointer(m_mfs.GetNodeAtIndex(i))==POINTER_DYNAMIC)
-        {
-         delete m_mfs.GetNodeAtIndex(i);
-        }
-     }
    m_mfs.FreeMode(false);
    delete m_mfs;
   }

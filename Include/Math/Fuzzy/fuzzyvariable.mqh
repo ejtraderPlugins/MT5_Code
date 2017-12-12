@@ -52,10 +52,10 @@ public :
    void              Min(const double min)   { m_min=min;      }
    double            Min(void)               { return (m_min); }
    //--- methods gets or sets the terms
-   CList            *Terms()              { return(m_terms); }
-   void              Terms(CList *&terms) {  m_terms=terms;  }
+   CList            *Terms() { return(m_terms); }
+   void              Terms(CList *terms) {  m_terms=terms;  }
    //--- add fuzzy term  
-   void              AddTerm(CFuzzyTerm *&term);
+   void              AddTerm(CFuzzyTerm *term);
    //--- get membership function by name 
    CFuzzyTerm       *GetTermByName(const string name);
    //--- overload
@@ -88,7 +88,7 @@ CFuzzyVariable::~CFuzzyVariable(void)
 //+------------------------------------------------------------------+
 //| Add fuzzy term to list terms in a variable                       |
 //+------------------------------------------------------------------+     
-void CFuzzyVariable::AddTerm(CFuzzyTerm *&term)
+void CFuzzyVariable::AddTerm(CFuzzyTerm *term)
   {
    m_terms.Add(term);
   }

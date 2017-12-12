@@ -72,10 +72,10 @@ void test_down_load_data()
    }
 void get_market_infor()
    {
-    int handle_file=FileOpen("symbols_name.csv",FILE_WRITE|FILE_CSV);
-    for(int i=0;i<SymbolsTotal(false);i++)
+    int handle_file=FileOpen("symbols_name_CFDFutures_13.csv",FILE_WRITE|FILE_CSV);
+    for(int i=0;i<SymbolsTotal(true);i++)
       {
-       FileWrite(handle_file,SymbolName(i,false));
+       FileWrite(handle_file,SymbolName(i,true));
       }
     FileClose(handle_file);
    }

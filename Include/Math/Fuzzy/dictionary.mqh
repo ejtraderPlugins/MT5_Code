@@ -60,7 +60,7 @@ void RemoveRange(CArrayObj &list,const int index,const int count)
 //| It creates a shallow copy of a range of elements                 |
 //| from the original list of CList                                  |
 //+------------------------------------------------------------------+   
-CArrayObj *GetRange(CArrayObj *&list,const int index,const int count)
+CArrayObj *GetRange(CArrayObj *list,const int index,const int count)
   {
    CArrayObj *new_list=new CArrayObj;
    for(int i=0; i<count; i++)
@@ -82,8 +82,8 @@ public:
                      CDictionary_Obj_Obj(void);
                     ~CDictionary_Obj_Obj(void);
    //--- methods gets or sets the value
-   CObject          *Key()                   { return(m_key);   }
-   void              Key(CObject *&key)      { m_key=key;       }
+   CObject          *Key() { return(m_key);   }
+   void              Key(CObject *key) { m_key=key;       }
    //--- methods gets or sets the key    
    CObject          *Value()                 { return(m_value); }
    void              Value(CObject *value)   { m_value=value;   }
@@ -95,17 +95,12 @@ public:
 //+------------------------------------------------------------------+
 CDictionary_Obj_Obj::CDictionary_Obj_Obj(void)
   {
-
   }
 //+------------------------------------------------------------------+
 //| Destructor                                                       |
 //+------------------------------------------------------------------+     
 CDictionary_Obj_Obj::~CDictionary_Obj_Obj()
   {
-   if(CheckPointer(m_key)==POINTER_DYNAMIC)
-      delete m_key;
-   if(CheckPointer(m_value)==POINTER_DYNAMIC)
-      delete m_value;
   }
 //+------------------------------------------------------------------+
 //| Sets the value and key                                           |
@@ -141,7 +136,6 @@ public:
 //+------------------------------------------------------------------+
 CDictionary_String_Obj::CDictionary_String_Obj(void)
   {
-
   }
 //+------------------------------------------------------------------+
 //| Destructor                                                       |
@@ -166,14 +160,14 @@ class CDictionary_Obj_Double : public CObject
   {
 private:
    CObject          *m_key;
-   double           m_value;
+   double            m_value;
 
 public:
                      CDictionary_Obj_Double(void);
                     ~CDictionary_Obj_Double(void);
    //--- methods gets or sets the value
-   CObject          *Key()                      { return(m_key);   }
-   void              Key(CObject *&key)         { m_key=key;       }
+   CObject          *Key() { return(m_key);   }
+   void              Key(CObject *key) { m_key=key;       }
    //--- methods gets or sets the key    
    double            Value()                    { return(m_value); }
    void              Value(const double value)  { m_value=value;   }
@@ -185,15 +179,12 @@ public:
 //+------------------------------------------------------------------+
 CDictionary_Obj_Double::CDictionary_Obj_Double(void)
   {
-
   }
 //+------------------------------------------------------------------+
 //| Destructor                                                       |
 //+------------------------------------------------------------------+     
 CDictionary_Obj_Double::~CDictionary_Obj_Double()
   {
-   if(CheckPointer(m_key)==POINTER_DYNAMIC)
-      delete m_key;
   }
 //+------------------------------------------------------------------+
 //| Sets the value and key                                           |

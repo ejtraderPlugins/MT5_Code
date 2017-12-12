@@ -54,7 +54,7 @@ public:
    //--- maethod gets the variable by name
    CSugenoVariable *OutputByName(const string name);
    //--- method create new linear function
-   CLinearSugenoFunction *CreateSugenoFunction(const string name,CList *&coeffs,const double constValue);
+   CLinearSugenoFunction *CreateSugenoFunction(const string name,CList *coeffs,const double constValue);
    CLinearSugenoFunction *CreateSugenoFunction(const string name,const double &coeffs[]);
    //--- method create a new rule
    CSugenoFuzzyRule *EmptyRule();
@@ -63,7 +63,7 @@ public:
    CList            *EvaluateConditions(CList *fuzzifiedInput);
    CList            *EvaluateFunctions(CList *inputValues);
    CList            *CombineResult(CList *ruleWeights,CList *functionResults);
-   CList            *Calculate(CList *&inputValues);
+   CList            *Calculate(CList *inputValues);
   };
 //+------------------------------------------------------------------+
 //| Constructor without parameters                                   |
@@ -102,7 +102,7 @@ CSugenoVariable *CSugenoFuzzySystem::OutputByName(const string name)
 //+------------------------------------------------------------------------+
 //| Use this method to create a linear function for the Sugeno fuzzy system|
 //+------------------------------------------------------------------------+
-CLinearSugenoFunction *CSugenoFuzzySystem::CreateSugenoFunction(const string name,CList *&coeffs,const double constValue)
+CLinearSugenoFunction *CSugenoFuzzySystem::CreateSugenoFunction(const string name,CList *coeffs,const double constValue)
   {
 //--- return linear Sugeno function  
    return new CLinearSugenoFunction(name, CGenericFuzzySystem::Input(), coeffs, constValue);
@@ -290,7 +290,7 @@ CList *CSugenoFuzzySystem::CombineResult(CList *ruleWeights,CList *functionResul
 //+------------------------------------------------------------------+
 //| Calculate output of fuzzy system                                 |
 //+------------------------------------------------------------------+
-CList *CSugenoFuzzySystem::Calculate(CList *&inputValues)
+CList *CSugenoFuzzySystem::Calculate(CList *inputValues)
   {
 //--- There should be one rule as minimum
    if(m_rules.Total()==0)
@@ -307,8 +307,19 @@ CList *CSugenoFuzzySystem::Calculate(CList *&inputValues)
    CList *functionsResult=EvaluateFunctions(inputValues);
 //--- Combine output
    CList *result=CombineResult(ruleWeights,functionsResult);
+//---
+   for(int i=0; i<functionsResult.Total(); i++)
+     {
+      CDictionary_Obj_Obj *pair=functionsResult.GetNodeAtIndex(i);
+      delete pair.Value();
+     }
    delete functionsResult;
    delete ruleWeights;
+   for(int i=0; i<fuzzifiedInput.Total(); i++)
+     {
+      CDictionary_Obj_Obj *pair=fuzzifiedInput.GetNodeAtIndex(i);
+      delete pair.Value();
+     }
    delete fuzzifiedInput;
 //--- return result
    return (result);

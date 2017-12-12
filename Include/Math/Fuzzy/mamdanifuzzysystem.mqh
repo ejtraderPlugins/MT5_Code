@@ -72,8 +72,8 @@ public:
    //--- method for calculate result
    CList            *Calculate(CList *inputValues);
    CList            *EvaluateConditions(CList *fuzzifiedInput);
-   CList            *Implicate(CList *&conditions);
-   CList            *Aggregate(CList *&conclusions);
+   CList            *Implicate(CList *conditions);
+   CList            *Aggregate(CList *conclusions);
    CList            *Defuzzify(CList *fuzzyResult);
    double            Defuzzify(IMembershipFunction *mf,const double min,const double max);
   };
@@ -152,9 +152,22 @@ CList *CMamdaniFuzzySystem::Calculate(CList *inputValues)
    CList *fuzzyResult=Aggregate(implicatedConclusions);
 //--- Defuzzify the result
    CList *result=Defuzzify(fuzzyResult);
+//--- 
    delete fuzzyResult;
+   for(int i=0; i<implicatedConclusions.Total(); i++)
+     {
+      CDictionary_Obj_Obj *pair=implicatedConclusions.GetNodeAtIndex(i);
+      CCompositeMembershipFunction *composite=pair.Value();
+      delete composite.MembershipFunctions().GetNodeAtIndex(0);
+      delete composite;
+     }
    delete implicatedConclusions;
    delete evaluatedConditions;
+   for(int i=0; i<fuzzifiedInput.Total(); i++)
+     {
+      CDictionary_Obj_Obj *pair=fuzzifiedInput.GetNodeAtIndex(i);
+      delete pair.Value();
+     }
    delete fuzzifiedInput;
 //--- return result
    return (result);
@@ -178,7 +191,7 @@ CList *CMamdaniFuzzySystem::EvaluateConditions(CList *fuzzifiedInput)
 //+------------------------------------------------------------------+
 //| Implicate rule results                                           |
 //+------------------------------------------------------------------+
-CList *CMamdaniFuzzySystem::Implicate(CList *&conditions)
+CList *CMamdaniFuzzySystem::Implicate(CList *conditions)
   {
    CList *conclusions=new CList;
    for(int i=0; i<conditions.Total(); i++)
@@ -219,7 +232,7 @@ CList *CMamdaniFuzzySystem::Implicate(CList *&conditions)
 //+------------------------------------------------------------------+
 //| Aggregate results                                                |
 //+------------------------------------------------------------------+
-CList *CMamdaniFuzzySystem::Aggregate(CList *&conclusions)
+CList *CMamdaniFuzzySystem::Aggregate(CList *conclusions)
   {
    CList *fuzzyResult=new CList;
    for(int i=0; i<Output().Total(); i++)
