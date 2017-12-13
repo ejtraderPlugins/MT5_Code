@@ -11,14 +11,14 @@
 CStrategyList Manager;
 input string symbol_x="XAUUSD";
 input string symbol_y="USDJPY";
-input int num_ts=1000;
+input int num_ts=1440;
 input double lots_x=0.1;
 input double lots_y=0.1;
 input CointergrationCalType coin_cal_type=ENUM_COINTERGRATION_TYPE_MULTIPLY;
 input PValueType p_cal_type=ENUM_PVALUE_TYPE_ORIGIN;
-input double p_down=0.2;
-input double p_up=0.8;
-input double take_profits=40; 
+input double p_down=0.05;
+input double p_up=0.95;
+input double take_profits=50; 
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |

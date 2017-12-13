@@ -24,7 +24,9 @@ void OnStart()
    //test_regression();
    //test_new_row();
    //test_down_load_data();
-   get_market_infor();
+   //get_market_infor();
+   test_datetime_to_others();
+   test_resize();
 
   }
 //+------------------------------------------------------------------+
@@ -78,4 +80,29 @@ void get_market_infor()
        FileWrite(handle_file,SymbolName(i,true));
       }
     FileClose(handle_file);
+   }
+ void test_datetime_to_others()
+   {
+    datetime dt_begin=D'2017.03.02 12:00';
+    datetime dt_end=D'2017.03.02 11:15';
+    Print(dt_begin," ", dt_end);
+    Print((int)dt_begin," ", (int)dt_end);
+    Print((long)dt_begin," ", (long)dt_end);
+    Print((dt_begin-dt_end));
+    Print(long(dt_begin-dt_end));
+    Print(PeriodSeconds(PERIOD_M15));
+   }
+   
+void test_resize()
+   {
+    int a[];
+    for(int i=0;i<5;i++)
+      {
+         ArrayResize(a,i+1);
+         a[i]=i;
+      }
+     for(int i=0;i<5;i++)
+       {
+        Print(a[i]);
+       }
    }
