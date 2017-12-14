@@ -15,81 +15,55 @@
 void OnStart()
   {
 //---
-//test_data_manager();
-   //test_corr();
-   test_data_analysizer();
+   //test_new_data_manager();
+   test_data_analysis();
   }
-//+------------------------------------------------------------------+
-void test_data_manager()
-  {
-   CForexMarketDataManager *dm=new CForexMarketDataManager();
-   string s[]={"XAUUSD","USDJPY"};
-   ENUM_TIMEFRAMES period=PERIOD_H1;
-   dm.SetParameter(s,period);
-   dm.RefreshSymbolsPrice(10);
-   CArrayDouble price=dm.GetSymbolPriceAt("USDJPY");
-   datetime t[];
-   dm.GetSymbolTime(t);
-   for(int i=0;i<dm.NumPrice();i++)
-     {
-      //Print(t[i],":",price[i]);
-     }
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void test_corr()
-  {
-   CForexMarketDataManager *dm=new CForexMarketDataManager();
-   string s[]={"XAUUSD","USDJPY"};
-   ENUM_TIMEFRAMES period=PERIOD_M1;
-   dm.SetParameter(s,period);
-   dm.RefreshSymbolsPrice(100);
-   CArrayDouble usdjpy = dm.GetSymbolPriceAt(s[0]);
-   CArrayDouble xauusd = dm.GetSymbolPriceAt(s[1]);
-   double close1[];
-   double close2[];
-   ArrayResize(close1,usdjpy.Total());
-   ArrayResize(close2,xauusd.Total());
-   for(int i=0;i<usdjpy.Total();i++)
-     {
-      close1[i]=usdjpy.At(i);
-      //close1[i]=i;
-      Print(close1[i]);
-     }
-   for(int i=0;i<xauusd.Total();i++)
-     {
-      close2[i]=xauusd.At(i);
-      //close2[i]=i;
-      Print(close2[i]);
-     }
-   CBaseStat bs=new CBaseStat();
-   Print("r:",bs.PearsonCorr2(close1,close2,100));
-  }
-void test_data_analysizer()
+
+void test_new_data_manager()
    {
-    CForexMarketDataManager *dm=new CForexMarketDataManager();
-    string all_symbols[];
-    ArrayResize(all_symbols,SymbolsTotal(true));
+    string s[]={"XAUUSD","USDJPY"};
+    ENUM_TIMEFRAMES period[]={PERIOD_M1,PERIOD_H1};
+    CForexMarketDataManager *dm =new CForexMarketDataManager();
+    dm.SetParameter(s,period);
+    dm.RefreshSymbolsPrice(100);
+    CArrayDouble *price1=dm.GetSymbolPriceAt("USDJPY",PERIOD_M1);
+    CArrayDouble *price2=dm.GetSymbolPriceAt("XAUUSD",PERIOD_H1);
+    CArrayLong *dt1 = dm.GetTimeAt(0);
+    CArrayLong *dt2 = dm.GetTimeAt(1);
+    
+    for(int i=0;i<price1.Total();i++)
+      {
+       Print("USDJPY-M1:",price1.At(i), "at ", (datetime)dt1.At(i));
+      }
+    for(int i=0;i<price2.Total();i++)
+      {
+       Print("XAUUSD-H1:",price2.At(i), "at ",(datetime)dt2.At(i));
+      }
+   }
+ void test_data_analysis()
+   {
+    ENUM_TIMEFRAMES period[]={PERIOD_M1,PERIOD_M5,PERIOD_M15,PERIOD_M30,PERIOD_H1,PERIOD_H4,PERIOD_D1};
+    string s[];
+    ArrayResize(s,SymbolsTotal(true));
     for(int i=0;i<SymbolsTotal(true);i++)
       {
-       all_symbols[i]=SymbolName(i,true);
-       Print(all_symbols[i]);
+       s[i]=SymbolName(i,true);
       }
-    dm.SetParameter(all_symbols,PERIOD_M5);
-    dm.RefreshSymbolsPrice(100);
-    Print(dm.NumSymbol());
-    Print(dm.NumPrice());
+    CForexMarketDataManager *dm =new CForexMarketDataManager();
+    dm.SetParameter(s,period);
+    dm.RefreshSymbolsPrice(D'2017.10.01',D'2017.10.20');
     CForexMarketDataAnalyzier *da=new CForexMarketDataAnalyzier();
     da.SetDataManager(dm);
-    double corref[];
-    string s1[];
-    string s2[];
-    da.GetPearsonCorrN(all_symbols,corref,s1,s2);
-    Print(da.GetPearsonCorr2(all_symbols[1],all_symbols[2]));
-    for(int i=0;i<ArraySize(s1);i++)
+    CArrayObj *res = new CArrayObj();
+    da.GetPearsonCorrN(res);
+    for(int i=0;i<res.Total();i++)
       {
-       Print("symbol1:",s1[i]," symbol2:",s2[i],"corr:",corref[i]);
+       CArrayObj *period_corr=res.At(i);
+       for(int j=0;j<period_corr.Total();j++)
+         {
+          CForexCorr *fc = period_corr.At(j);
+          Print(fc.symbol1," ",fc.symbol2," ",fc.time_frame," ",fc.r);
+         }
       }
    }
 //+------------------------------------------------------------------+
