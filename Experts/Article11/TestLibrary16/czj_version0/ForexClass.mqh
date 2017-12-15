@@ -149,6 +149,15 @@ ForexFamily::Init(string family_name)
       double   coeff[]={1,1};
       ArrayCopy(symbol_coefficient,coeff);
       }
+   else if(family_name=="EURCHF")
+      {
+      string sn[]={"EURUSD","USDCHF","EURCHF"};
+      num=ArraySize(sn);
+      ArrayResize(symbol_names,num);
+      ArrayCopy(symbol_names,sn);
+      double   coeff[]={1,1,1};
+      ArrayCopy(symbol_coefficient,coeff);
+      }
    else
      {
       string sn[]={"XAUUSD","EURUSD","GBPUSD","AUDUSD","NZDUSD","USDJPY","USDCAD","USDCHF"};
