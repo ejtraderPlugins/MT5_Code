@@ -29,11 +29,11 @@ int OnInit()
    CArbitrageStrategy *arb =new CArbitrageStrategy();
    arb.ExpertMagic(9002);
    arb.ExpertSymbol(symbol_x);
-   arb.Timeframe(_Period);
+   arb.Timeframe(PERIOD_M1);
    arb.ExpertName("Arbitrage-2");
-   arb.SetEventDetect(symbol_x,_Period);
-   arb.SetEventDetect(symbol_y,_Period);
-   arb.SetSymbolsInfor(symbol_x,symbol_y,_Period,num_ts,lots_x,lots_y);
+   arb.SetEventDetect(symbol_x,PERIOD_M1);
+   arb.SetEventDetect(symbol_y,PERIOD_M1);
+   arb.SetSymbolsInfor(symbol_x,symbol_y,PERIOD_M1,num_ts,lots_x,lots_y);
    arb.SetCointergrationInfor(coin_cal_type,p_cal_type);
    arb.SetOpenCloseParameter(p_down,p_up,take_profits);
    
