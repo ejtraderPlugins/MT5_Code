@@ -75,6 +75,7 @@ protected:
    int               m_buckets[];
    Entry<TKey,TValue>m_entries[];
    int               m_count;
+   int               m_capacity;
    int               m_free_list;
    int               m_free_count;
    IEqualityComparer<TKey>*m_comparer;
@@ -111,9 +112,10 @@ public:
 
 private:
    void              Initialize(const int capacity);
-   void              Resize(int new_size,bool new_hash_codes);
+   void              Resize(int new_size);
    int               FindEntry(TKey key);
    bool              Insert(TKey key,TValue value,const bool add);
+   static int        m_collision_threshold;
   };
 //+------------------------------------------------------------------+
 //| Initializes a new instance of the CHashMap<TKey,TValue> class    |
@@ -123,7 +125,8 @@ private:
 template<typename TKey,typename TValue>
 CHashMap::CHashMap(void): m_count(0),
                           m_free_list(0),
-                          m_free_count(0)
+                          m_free_count(0),
+                          m_capacity(0)
   {
 //--- use default equality comaprer   
    m_comparer=new CDefaultEqualityComparer<TKey>();
@@ -137,7 +140,8 @@ CHashMap::CHashMap(void): m_count(0),
 template<typename TKey,typename TValue>
 CHashMap::CHashMap(const int capacity): m_count(0),
                                         m_free_list(0),
-                                        m_free_count(0)
+                                        m_free_count(0),
+                                        m_capacity(0)
   {
 //--- set capacity 
    if(capacity>0)
@@ -154,7 +158,8 @@ CHashMap::CHashMap(const int capacity): m_count(0),
 template<typename TKey,typename TValue>
 CHashMap::CHashMap(IEqualityComparer<TKey>*comparer): m_count(0),
                                                       m_free_list(0),
-                                                      m_free_count(0)
+                                                      m_free_count(0),
+                                                      m_capacity(0)
   {
 //--- check equality comaprer
    if(CheckPointer(comparer)==POINTER_INVALID)
@@ -178,7 +183,8 @@ CHashMap::CHashMap(IEqualityComparer<TKey>*comparer): m_count(0),
 template<typename TKey,typename TValue>
 CHashMap::CHashMap(const int capacity,IEqualityComparer<TKey>*comparer): m_count(0),
                                                                          m_free_list(0),
-                                                                         m_free_count(0)
+                                                                         m_free_count(0),
+                                                                         m_capacity(0)
   {
    if(capacity>0)
       Initialize(capacity);
@@ -205,7 +211,8 @@ CHashMap::CHashMap(const int capacity,IEqualityComparer<TKey>*comparer): m_count
 template<typename TKey,typename TValue>
 CHashMap::CHashMap(IMap<TKey,TValue>*map): m_count(0),
                                            m_free_list(0),
-                                           m_free_count(0)
+                                           m_free_count(0),
+                                           m_capacity(0)
   {
 //--- use default equality comaprer    
    m_comparer=new CDefaultEqualityComparer<TKey>();
@@ -231,7 +238,8 @@ CHashMap::CHashMap(IMap<TKey,TValue>*map): m_count(0),
 template<typename TKey,typename TValue>
 CHashMap::CHashMap(IMap<TKey,TValue>*map,IEqualityComparer<TKey>*comparer): m_count(0),
                                                                             m_free_list(0),
-                                                                            m_free_count(0)
+                                                                            m_free_count(0),
+                                                                            m_capacity(0)
   {
 //--- check equality comaprer
    if(CheckPointer(comparer)==POINTER_INVALID)
@@ -403,7 +411,7 @@ void CHashMap::Clear(void)
 //--- check count
    if(m_count>0)
      {
-      ArrayFill(m_buckets,0,ArraySize(m_buckets),-1);
+      ArrayFill(m_buckets,0,m_capacity,-1);
       ArrayFree(m_entries);
       m_count=0;
       m_free_list=-1;
@@ -434,10 +442,10 @@ bool CHashMap::Remove(CKeyValuePair<TKey,TValue>*item)
 template<typename TKey,typename TValue>
 bool CHashMap::Remove(TKey key)
   {
-   if(ArraySize(m_buckets)!=0)
+   if(m_capacity!=0)
      {
       int hash_code=m_comparer.HashCode(key)&0x7FFFFFFF;
-      int bucket=hash_code%ArraySize(m_buckets);
+      int bucket=hash_code%m_capacity;
       int last=-1;
       //--- search pair with specified key
       for(int i=m_buckets[bucket]; i>=0; last=i,i=m_entries[i].next)
@@ -493,28 +501,23 @@ bool CHashMap::TrySetValue(TKey key,TValue value)
 template<typename TKey,typename TValue>
 void CHashMap::Initialize(const int capacity)
   {
-   int size=CPrimeGenerator::GetPrime(capacity);
-   ArrayResize(m_buckets,size);
-   ArrayFill(m_buckets,0,size,-1);
-   ArrayResize(m_entries,size);
+   m_capacity=CPrimeGenerator::GetPrime(capacity);
+   ArrayResize(m_buckets,m_capacity);
+   ArrayFill(m_buckets,0,m_capacity,-1);
+   ArrayResize(m_entries,m_capacity);
    m_free_list=-1;
   }
 //+------------------------------------------------------------------+
 //| Resize map.                                                      |
 //+------------------------------------------------------------------+
 template<typename TKey,typename TValue>
-void CHashMap::Resize(const int new_size,const bool new_hash_codes)
+void CHashMap::Resize(const int new_size)
   {
 //--- resize buckets
    ArrayResize(m_buckets,new_size);
    ArrayFill(m_buckets,0,new_size,-1);
 //--- resize entries
    ArrayResize(m_entries,new_size);
-//--- restore entries
-   if(new_hash_codes)
-      for(int i=0; i<m_count; i++)
-         if(m_entries[i].hash_code!=-1)
-            m_entries[i].hash_code=(m_comparer.HashCode(m_entries[i].key)&0x7FFFFFFF);
 //--- restore buckets
    for(int i=0; i<m_count; i++)
       if(m_entries[i].hash_code>=0)
@@ -523,6 +526,8 @@ void CHashMap::Resize(const int new_size,const bool new_hash_codes)
          m_entries[i].next = m_buckets[bucket];
          m_buckets[bucket] = i;
         }
+//--- restore capacity
+   m_capacity=new_size;
   }
 //+------------------------------------------------------------------+
 //| Find index of entry with specified key.                          |
@@ -530,12 +535,12 @@ void CHashMap::Resize(const int new_size,const bool new_hash_codes)
 template<typename TKey,typename TValue>
 int CHashMap::FindEntry(TKey key)
   {
-   if(ArraySize(m_buckets)!=NULL)
+   if(m_capacity!=NULL)
      {
       //--- get hash code from key
       int hash_code=m_comparer.HashCode(key)&0x7FFFFFFF;
       //--- search pair with specified key
-      for(int i=m_buckets[hash_code%ArraySize(m_buckets)]; i>=0; i=m_entries[i].next)
+      for(int i=m_buckets[hash_code%m_capacity]; i>=0; i=m_entries[i].next)
          if(m_entries[i].hash_code==hash_code && m_comparer.Equals(m_entries[i].key,key))
             return(i);
      }
@@ -547,14 +552,24 @@ int CHashMap::FindEntry(TKey key)
 template<typename TKey,typename TValue>
 bool CHashMap::Insert(TKey key,TValue value,const bool add)
   {
-   if(ArraySize(m_buckets)==0)
+   if(m_capacity==0)
       Initialize(0);
 //--- get hash code from key
    int hash_code=m_comparer.HashCode(key)&0x7FFFFFFF;
-   int target_bucket=hash_code%ArraySize(m_buckets);
+   int target_bucket=hash_code%m_capacity;
+//--- collisions count in one bucket with different hashes
+   int collision_count=0;
 //--- search pair with specified key
    for(int i=m_buckets[target_bucket]; i>=0; i=m_entries[i].next)
-      if(m_entries[i].hash_code==hash_code && m_comparer.Equals(m_entries[i].key,key))
+     {
+      //--- hash compare      
+      if(m_entries[i].hash_code!=hash_code)
+        {
+         collision_count++;
+         continue;
+        }
+      //--- value compare     
+      if(m_comparer.Equals(m_entries[i].key,key))
         {
          //--- adding duplicate
          if(add)
@@ -562,6 +577,13 @@ bool CHashMap::Insert(TKey key,TValue value,const bool add)
          m_entries[i].value=value;
          return(true);
         }
+     }
+//--- check collision
+   if(collision_count>=m_collision_threshold)
+     {
+      int new_size=CPrimeGenerator::ExpandPrime(m_count);
+      Resize(new_size);
+     }
 //--- calculate index
    int index;
    if(m_free_count>0)
@@ -575,18 +597,20 @@ bool CHashMap::Insert(TKey key,TValue value,const bool add)
       if(m_count==ArraySize(m_entries))
         {
          int new_size=CPrimeGenerator::ExpandPrime(m_count);
-         Resize(new_size,false);
-         target_bucket=hash_code%ArraySize(m_buckets);
+         Resize(new_size);
+         target_bucket=hash_code%new_size;
         }
       index=m_count;
       m_count++;
      }
 //--- set pair
    m_entries[index].hash_code=hash_code;
-   m_entries[index].next= m_buckets[target_bucket];
-   m_entries[index].key = key;
+   m_entries[index].next=m_buckets[target_bucket];
+   m_entries[index].key=key;
    m_entries[index].value=value;
    m_buckets[target_bucket]=index;
    return(true);
   }
+template<typename TKey,typename TValue>
+static int CHashMap::m_collision_threshold=8;
 //+------------------------------------------------------------------+

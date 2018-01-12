@@ -33,7 +33,7 @@ public:
    bool              Contains(T item)     { return(m_tree.Contains(item)); }
    IComparer<T>     *Comparer(void) const { return(m_tree.Comparer());     }
    bool              TryGetMin(T &min)    { return(m_tree.TryGetMin(min)); }
-   bool              TryGetMax(T &max)    { return(m_tree.TryGetMin(max)); }
+   bool              TryGetMax(T &max)    { return(m_tree.TryGetMax(max)); }
    //--- methods of copy data from collection   
    int               CopyTo(T &dst_array[],const int dst_start=0);
    //--- methods of cleaning and deleting
