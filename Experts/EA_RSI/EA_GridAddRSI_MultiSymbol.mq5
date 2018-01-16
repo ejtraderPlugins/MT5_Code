@@ -10,7 +10,8 @@
 #include <strategy_czj\strategyRSI\GridAddRSI.mqh>
 
 CStrategyList Manager;
-string symbols[]={"EURUSD","USDJPY","GBPUSD","USDCAD","AUDUSD","AUDUSD","NZDUSD"};
+//string symbols[]={"EURUSD","USDJPY","GBPUSD","USDCAD","AUDUSD","AUDUSD","NZDUSD"};
+string symbols[]={"CADCHF","GBPNZD","AUDCAD","GBPUSD","EURGBP","AUDNZD","CHFJPY","GBPJPY","EURCAD","EURJPY"};
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
@@ -28,6 +29,7 @@ int OnInit()
       rsi_s[i].Timeframe(_Period);
       rsi_s[i].ExpertSymbol(symbols[i]);
       rsi_s[i].SetEventDetect(symbols[i],_Period);
+      rsi_s[i].InitStrategy();
       Manager.AddStrategy(rsi_s[i]);
       
      }

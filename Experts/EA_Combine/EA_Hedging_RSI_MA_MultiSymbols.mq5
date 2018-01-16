@@ -7,9 +7,12 @@
 #property link      "https://www.mql5.com"
 #property version   "1.00"
 #include <Strategy\StrategiesList.mqh>
-#include <strategy_czj\strategyRSI\BreakPointRSI.mqh>
-input RSI_type type_RSI=ENUM_RSI_TYPE_1;
+#include <strategy_czj\strategyRSI\GridAddRSI.mqh>
+#include <strategy_czj\strategyma\SimpleDoubleMA.mqh>
+
 CStrategyList Manager;
+//string symbols[]={"EURUSD","USDJPY","GBPUSD","USDCAD","AUDUSD","AUDUSD","NZDUSD"};
+string symbols[]={"CADCHF","GBPNZD","AUDCAD","GBPUSD","EURGBP","AUDNZD","CHFJPY","GBPJPY","EURCAD","EURJPY"};
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
@@ -17,14 +20,32 @@ CStrategyList Manager;
 int OnInit()
   {
 //---
-   CBreakPointRSIStrategy *rsi_s=new CBreakPointRSIStrategy();
-   rsi_s.ExpertName("RSI BreakPoints");
-   rsi_s.ExpertMagic(2018012201);
-   rsi_s.Timeframe(_Period);
-   rsi_s.ExpertSymbol(_Symbol);
-   rsi_s.SetEventDetect(_Symbol,_Period);
-   rsi_s.InitStrategy(ENUM_RSI_TYPE_1);
-   Manager.AddStrategy(rsi_s);
+   CGridAddRSIStrategy *rsi_s[];
+   ArrayResize(rsi_s,ArraySize(symbols));
+   for(int i=0;i<ArraySize(symbols);i++)
+     {
+      rsi_s[i]=new CGridAddRSIStrategy();
+      rsi_s[i].ExpertName("RSI Grid add Strategy"+string(i));
+      rsi_s[i].ExpertMagic(201801161351+i*100);
+      rsi_s[i].Timeframe(_Period);
+      rsi_s[i].ExpertSymbol(symbols[i]);
+      rsi_s[i].SetEventDetect(symbols[i],_Period);
+      rsi_s[i].InitStrategy();
+      Manager.AddStrategy(rsi_s[i]);
+     }
+   CSimpleDoubleMA *ma_s[];
+   ArrayResize(ma_s,ArraySize(ma_s));
+   for(int i=0;i<ArraySize(symbols);i++)
+     {
+      ma_s[i]=new CSimpleDoubleMA();
+      ma_s[i].ExpertName("Simple Double MA Strategy"+string(i));
+      ma_s[i].ExpertMagic(201801161351+i*1000);
+      ma_s[i].ExpertSymbol(symbols[i]);
+      ma_s[i].SetEventDetect(symbols[i],_Period);
+      ma_s[i].InitStrategy(200,24);
+      Manager.AddStrategy(ma_s[i]);
+     }
+   
    
 //---
    return(INIT_SUCCEEDED);

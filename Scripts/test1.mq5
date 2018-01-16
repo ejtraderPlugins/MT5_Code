@@ -6,8 +6,6 @@
 #property copyright "chizhijing"
 #property link      "https://www.mql5.com"
 #property version   "1.00"
-#include <czj_tools\SymbolPrice.mqh>
-#include <czj_tools\MarketPrice.mqh>
 #include <Arrays\ArrayObj.mqh>
 #include <Math\Alglib\alglib.mqh>
 #include <czj_tools\Cointegration.mqh>
@@ -25,8 +23,9 @@ void OnStart()
    //test_new_row();
    //test_down_load_data();
    //get_market_infor();
-   test_datetime_to_others();
-   test_resize();
+   //test_datetime_to_others();
+   //test_resize();
+   test_indicator();
 
   }
 //+------------------------------------------------------------------+
@@ -105,4 +104,10 @@ void test_resize()
        {
         Print(a[i]);
        }
+   }
+void test_indicator()
+   {
+    int rsi_handle1=iRSI("XAUUSD",PERIOD_H1,12,PRICE_CLOSE);
+    int rsi_handle2=iRSI("CADCHF",PERIOD_H1,12,PRICE_CLOSE);
+    Print(rsi_handle1," ",rsi_handle2);
    }
