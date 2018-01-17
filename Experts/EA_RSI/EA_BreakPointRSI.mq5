@@ -23,7 +23,7 @@ int OnInit()
    rsi_s.Timeframe(_Period);
    rsi_s.ExpertSymbol(_Symbol);
    rsi_s.SetEventDetect(_Symbol,_Period);
-   rsi_s.InitStrategy(ENUM_RSI_TYPE_1);
+   rsi_s.InitStrategy(type_RSI);
    Manager.AddStrategy(rsi_s);
    
 //---

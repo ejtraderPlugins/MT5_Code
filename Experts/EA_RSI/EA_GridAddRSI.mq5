@@ -8,6 +8,7 @@
 #property version   "1.00"
 #include <Strategy\StrategiesList.mqh>
 #include <strategy_czj\strategyRSI\GridAddRSI.mqh>
+input RSI_type type_RSI=ENUM_RSI_TYPE_5;
 
 CStrategyList Manager;
 
@@ -23,7 +24,7 @@ int OnInit()
    rsi_s.Timeframe(_Period);
    rsi_s.ExpertSymbol(_Symbol);
    rsi_s.SetEventDetect(_Symbol,_Period);
-   rsi_s.InitStrategy();
+   rsi_s.InitStrategy(type_RSI);
    Manager.AddStrategy(rsi_s);
    
 //---

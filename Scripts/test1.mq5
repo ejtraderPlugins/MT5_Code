@@ -25,7 +25,8 @@ void OnStart()
    //get_market_infor();
    //test_datetime_to_others();
    //test_resize();
-   test_indicator();
+   //test_indicator();
+   func_test_main();
 
   }
 //+------------------------------------------------------------------+
@@ -110,4 +111,29 @@ void test_indicator()
     int rsi_handle1=iRSI("XAUUSD",PERIOD_H1,12,PRICE_CLOSE);
     int rsi_handle2=iRSI("CADCHF",PERIOD_H1,12,PRICE_CLOSE);
     Print(rsi_handle1," ",rsi_handle2);
+   }
+   
+void func_test(const double &arr[],bool &big5,bool &less0)
+   {
+    for(int i=0;i<ArraySize(arr);i++)
+      {
+       if(arr[i]>5)
+         {
+          big5=true;
+         }
+       if(arr[i]<0)
+         {
+          less0=true;
+         }
+      }
+     Print(big5,less0);
+   }
+void func_test_main()
+   {
+    bool is_big_5=false;
+    bool is_less_0=false;
+    double a[]={-3,6,8};
+    Print(is_big_5,is_less_0);
+    func_test(a,is_big_5,is_less_0);
+    Print(is_big_5,is_less_0);
    }
