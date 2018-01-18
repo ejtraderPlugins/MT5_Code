@@ -56,8 +56,6 @@ int OnCalculate(const int rates_total,
        double high[], low[];
        CopyHigh(_Symbol,_Period,rates_total-i,720,high);
        CopyLow(_Symbol,_Period,rates_total-i,720,low);
-       Print(high[ArrayMaximum(high)]);
-       Print(max_price_buffer[0]);
        max_price_buffer[i]=high[ArrayMaximum(high)];
        min_price_buffer[i]=low[ArrayMinimum(low)];
       }

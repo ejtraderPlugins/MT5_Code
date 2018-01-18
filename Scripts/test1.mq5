@@ -26,7 +26,8 @@ void OnStart()
    //test_datetime_to_others();
    //test_resize();
    //test_indicator();
-   func_test_main();
+   //func_test_main();
+   test_symbols_digits();
 
   }
 //+------------------------------------------------------------------+
@@ -136,4 +137,17 @@ void func_test_main()
     Print(is_big_5,is_less_0);
     func_test(a,is_big_5,is_less_0);
     Print(is_big_5,is_less_0);
+   }
+void test_symbols_digits()
+   {
+    for(int i=0;i<SymbolsTotal(true);i++)
+      {
+       string symbol_choose=SymbolName(i,true);
+       double point = SymbolInfoDouble(symbol_choose,SYMBOL_POINT);
+       long digits = SymbolInfoInteger(symbol_choose,SYMBOL_DIGITS);
+       double tick_size=SymbolInfoDouble(symbol_choose,SYMBOL_TRADE_TICK_SIZE);
+       double size=SymbolInfoDouble(symbol_choose,SYMBOL_TRADE_CONTRACT_SIZE);
+       
+       Print("Symbol:",symbol_choose," Point:", point," Digits:",digits, " Tick Size:",tick_size, " Size:",size);
+      }
    }
