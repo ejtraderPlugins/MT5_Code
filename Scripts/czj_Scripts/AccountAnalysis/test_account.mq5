@@ -13,6 +13,7 @@
 void OnStart()
   {
 //---
-   GetAccountInformation();
+   //GetAccountInformation();
+   test_risk_manager();
   }
 //+------------------------------------------------------------------+

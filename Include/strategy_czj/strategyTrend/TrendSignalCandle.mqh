@@ -10,11 +10,11 @@ class CTrendSignalCandel
    {
 private:
    MqlRates rates[];
-   int handle_ma_long;
-   int handle_ma_short;
    int handle_macd;
-   double ma_long[];
-   double ma_short[];
+   double macd[];
+   double signal[];
+   double fast_ma[];
+   double slow_ma[];
 public:
    CTrendSignalCandel(void){};
    void InitSignal(string symbol,ENUM_TIMEFRAMES tf);
@@ -24,23 +24,25 @@ public:
 void CTrendSignalCandel::InitSignal(string symbol,ENUM_TIMEFRAMES tf)
    {
     CopyRates(symbol,tf,0,4,rates);
-    handle_ma_long=iMA(symbol,tf,200,0,MODE_SMA,PRICE_CLOSE);
-    handle_ma_short=iMA(symbol,tf,24,0,MODE_SMA,PRICE_CLOSE);
     handle_macd=iMACD(symbol,tf,24,200,12,PRICE_CLOSE);
-    CopyBuffer(handle_ma_long,0,0,2,ma_long);
-    CopyBuffer(handle_ma_short,0,0,2,ma_short);
+    CopyBuffer(handle_macd,0,0,50,macd);
+    CopyBuffer(handle_macd,1,0,50,signal);
+    CopyBuffer(handle_macd,2,0,50,fast_ma);
+    CopyBuffer(handle_macd,3,0,50,slow_ma);
    }
 bool CTrendSignalCandel::LongCondition(void)
    {
     bool condition1=rates[0].close<rates[1].close&&rates[1].close<rates[2].close;
-    bool condition2=ma_long[0]<ma_short[0];
-    if(condition1&&condition2) return true;
+    bool condition2=signal[48]>0;
+    bool condition3=rates[0].close-rates[0].open<rates[1].close-rates[1].open&&rates[1].close-rates[1].open<rates[2].close-rates[2].open;
+    if(condition1&&condition2&&condition3) return true;
     return false;
    }
 bool CTrendSignalCandel::ShortCondition(void)
    {
     bool condition1=rates[0].close>rates[1].close&&rates[1].close>rates[2].close;
-    bool condition2=ma_long[0]>ma_short[0];
-    if(condition1&&condition2) return true;
+    bool condition2=signal[48]<0;
+    bool condition3=rates[0].close-rates[0].open>rates[1].close-rates[1].open&&rates[1].close-rates[1].open>rates[2].close-rates[2].open;
+    if(condition1&&condition2&&condition3) return true;
     return false;
    }
